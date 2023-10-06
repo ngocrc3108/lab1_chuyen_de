@@ -1,0 +1,15 @@
+../Core/Src/main.c:72:5:main	1
+../Core/Src/main.c:112:6:resetLed	1
+../Core/Src/main.c:121:6:effect1	1
+../Core/Src/main.c:127:6:effect2	3
+../Core/Src/main.c:137:6:effect3	3
+../Core/Src/main.c:147:6:turnOffAllLeds	1
+../Core/Src/main.c:153:6:toggleLeds	4
+../Core/Src/main.c:183:6:buttonCheck	13
+../Core/Src/main.c:218:6:HAL_TIM_PeriodElapsedCallback	5
+../Core/Src/main.c:236:6:SystemClock_Config	3
+../Core/Src/main.c:276:13:MX_TIM3_Init	4
+../Core/Src/main.c:321:13:MX_TIM4_Init	4
+../Core/Src/main.c:366:13:MX_USART1_UART_Init	2
+../Core/Src/main.c:399:13:MX_GPIO_Init	1
+../Core/Src/main.c:438:6:Error_Handler	1
