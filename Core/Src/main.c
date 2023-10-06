@@ -201,7 +201,7 @@ void buttonCheck() {
 	// check button 2
 	state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
 	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressing
-		holdTime2 += 10; // add 10ms to holdTime1
+		holdTime2 += 10; // add 10ms to holdTime2
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
 		if(holdTime2 < 500)
 			// change effect.
