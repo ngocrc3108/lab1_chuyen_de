@@ -116,7 +116,7 @@ void resetLed() {
 }
 
 int effectPhase = 0;
-int effect = 0;
+int selectedtEffect = 0;
 
 void effect1() {
 	HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
@@ -158,9 +158,9 @@ void toggleLeds() {
 		turnOffAllLeds();
 
 	// Check which effect is being used and execute it.
-	if(effect == 0)
+	if(selectedtEffect == 0)
 		effect1();
-	else if(effect == 1)
+	else if(selectedtEffect == 1)
 		effect2(effectPhase);
 	else
 		effect3(effectPhase);
@@ -199,13 +199,13 @@ void buttonCheck() {
 	}
 
 	// check button 2
-	state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
+	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
 	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressing
 		holdTime2 += 10; // add 10ms to holdTime2
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
 		if(holdTime2 < 500)
 			// change effect.
-			effect = (effect + 1) % 3; // there are 3 effect;
+			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
 		else
 			maxCycleCount = maxCycleCount + holdTime1 / 200 * 100; // tang 100ms sau moi 200ms nut duoc nhan.
 
