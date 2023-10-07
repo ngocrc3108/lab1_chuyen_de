@@ -39,13 +39,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  17 .debug_macro  00016c53  00000000  00000000  0002ed59  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   0000e002  00000000  00000000  000459ac  2**0
+ 18 .debug_line   0000dffb  00000000  00000000  000459ac  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    00086a5d  00000000  00000000  000539ae  2**0
+ 19 .debug_str    00086a67  00000000  00000000  000539a7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_frame  000032b4  00000000  00000000  000da40c  2**2
+ 20 .debug_frame  000032b4  00000000  00000000  000da410  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000057  00000000  00000000  000dd6c0  2**0
+ 21 .debug_line_str 00000057  00000000  00000000  000dd6c4  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -135,7 +135,7 @@ int main(void)
 }
 
 int effectPhase = 0;
-int effect = 0;
+int selectedtEffect = 0;
 
 void effect1() {
  8000180:	b580      	push	{r7, lr}
@@ -306,7 +306,7 @@ void toggleLeds() {
  8000284:	f7ff ffe2 	bl	800024c <turnOffAllLeds>
 
 	// Check which effect is being used and execute it.
-	if(effect == 0)
+	if(selectedtEffect == 0)
  8000288:	4b14      	ldr	r3, [pc, #80]	; (80002dc <toggleLeds+0x64>)
  800028a:	681b      	ldr	r3, [r3, #0]
  800028c:	2b00      	cmp	r3, #0
@@ -314,7 +314,7 @@ void toggleLeds() {
 		effect1();
  8000290:	f7ff ff76 	bl	8000180 <effect1>
  8000294:	e00e      	b.n	80002b4 <toggleLeds+0x3c>
-	else if(effect == 1)
+	else if(selectedtEffect == 1)
  8000296:	4b11      	ldr	r3, [pc, #68]	; (80002dc <toggleLeds+0x64>)
  8000298:	681b      	ldr	r3, [r3, #0]
  800029a:	2b01      	cmp	r3, #1
@@ -356,13 +356,13 @@ void toggleLeds() {
  80002dc:	20000108 	.word	0x20000108
  80002e0:	38e38e39 	.word	0x38e38e39
 
-080002e4 <buttonCheck>:
+080002e4 <checkButtons>:
 int holdTime2 = 0;
 
 int unitCycleCount = 0; // 1 cycle = 100ms; 0 -> maxCycleCount1;
 int maxCycleCount = 1; // cycle: 100ms -> 2s
 
-void buttonCheck() {
+void checkButtons() {
  80002e4:	b580      	push	{r7, lr}
  80002e6:	b082      	sub	sp, #8
  80002e8:	af00      	add	r7, sp, #0
@@ -371,217 +371,220 @@ void buttonCheck() {
 	// check button 1
 	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
  80002ea:	2101      	movs	r1, #1
- 80002ec:	4841      	ldr	r0, [pc, #260]	; (80003f4 <buttonCheck+0x110>)
+ 80002ec:	4844      	ldr	r0, [pc, #272]	; (8000400 <checkButtons+0x11c>)
  80002ee:	f000 ff0d 	bl	800110c <HAL_GPIO_ReadPin>
  80002f2:	4603      	mov	r3, r0
  80002f4:	71fb      	strb	r3, [r7, #7]
 	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressing
  80002f6:	79fb      	ldrb	r3, [r7, #7]
  80002f8:	2b01      	cmp	r3, #1
- 80002fa:	d109      	bne.n	8000310 <buttonCheck+0x2c>
- 80002fc:	4b3e      	ldr	r3, [pc, #248]	; (80003f8 <buttonCheck+0x114>)
+ 80002fa:	d109      	bne.n	8000310 <checkButtons+0x2c>
+ 80002fc:	4b41      	ldr	r3, [pc, #260]	; (8000404 <checkButtons+0x120>)
  80002fe:	781b      	ldrb	r3, [r3, #0]
  8000300:	2b01      	cmp	r3, #1
- 8000302:	d105      	bne.n	8000310 <buttonCheck+0x2c>
+ 8000302:	d105      	bne.n	8000310 <checkButtons+0x2c>
 		holdTime1 += 10; // add 10ms to holdTime1
- 8000304:	4b3d      	ldr	r3, [pc, #244]	; (80003fc <buttonCheck+0x118>)
+ 8000304:	4b40      	ldr	r3, [pc, #256]	; (8000408 <checkButtons+0x124>)
  8000306:	681b      	ldr	r3, [r3, #0]
  8000308:	330a      	adds	r3, #10
- 800030a:	4a3c      	ldr	r2, [pc, #240]	; (80003fc <buttonCheck+0x118>)
+ 800030a:	4a3f      	ldr	r2, [pc, #252]	; (8000408 <checkButtons+0x124>)
  800030c:	6013      	str	r3, [r2, #0]
- 800030e:	e028      	b.n	8000362 <buttonCheck+0x7e>
+ 800030e:	e028      	b.n	8000362 <checkButtons+0x7e>
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
  8000310:	79fb      	ldrb	r3, [r7, #7]
  8000312:	2b00      	cmp	r3, #0
- 8000314:	d125      	bne.n	8000362 <buttonCheck+0x7e>
- 8000316:	4b38      	ldr	r3, [pc, #224]	; (80003f8 <buttonCheck+0x114>)
+ 8000314:	d125      	bne.n	8000362 <checkButtons+0x7e>
+ 8000316:	4b3b      	ldr	r3, [pc, #236]	; (8000404 <checkButtons+0x120>)
  8000318:	781b      	ldrb	r3, [r3, #0]
  800031a:	2b01      	cmp	r3, #1
- 800031c:	d121      	bne.n	8000362 <buttonCheck+0x7e>
+ 800031c:	d121      	bne.n	8000362 <checkButtons+0x7e>
 		if(holdTime1 < 500)
- 800031e:	4b37      	ldr	r3, [pc, #220]	; (80003fc <buttonCheck+0x118>)
+ 800031e:	4b3a      	ldr	r3, [pc, #232]	; (8000408 <checkButtons+0x124>)
  8000320:	681b      	ldr	r3, [r3, #0]
  8000322:	f5b3 7ffa 	cmp.w	r3, #500	; 0x1f4
- 8000326:	da05      	bge.n	8000334 <buttonCheck+0x50>
+ 8000326:	da05      	bge.n	8000334 <checkButtons+0x50>
 			maxCycleCount--;
- 8000328:	4b35      	ldr	r3, [pc, #212]	; (8000400 <buttonCheck+0x11c>)
+ 8000328:	4b38      	ldr	r3, [pc, #224]	; (800040c <checkButtons+0x128>)
  800032a:	681b      	ldr	r3, [r3, #0]
  800032c:	3b01      	subs	r3, #1
- 800032e:	4a34      	ldr	r2, [pc, #208]	; (8000400 <buttonCheck+0x11c>)
+ 800032e:	4a37      	ldr	r2, [pc, #220]	; (800040c <checkButtons+0x128>)
  8000330:	6013      	str	r3, [r2, #0]
- 8000332:	e00f      	b.n	8000354 <buttonCheck+0x70>
+ 8000332:	e00f      	b.n	8000354 <checkButtons+0x70>
 		else
 			maxCycleCount = maxCycleCount - holdTime1 / 200 * 100; // giam 100ms sau moi 200ms nut duoc nhan.
- 8000334:	4b31      	ldr	r3, [pc, #196]	; (80003fc <buttonCheck+0x118>)
+ 8000334:	4b34      	ldr	r3, [pc, #208]	; (8000408 <checkButtons+0x124>)
  8000336:	681b      	ldr	r3, [r3, #0]
- 8000338:	4a32      	ldr	r2, [pc, #200]	; (8000404 <buttonCheck+0x120>)
+ 8000338:	4a35      	ldr	r2, [pc, #212]	; (8000410 <checkButtons+0x12c>)
  800033a:	fb82 1203 	smull	r1, r2, r2, r3
  800033e:	1192      	asrs	r2, r2, #6
  8000340:	17db      	asrs	r3, r3, #31
  8000342:	1a9b      	subs	r3, r3, r2
  8000344:	2264      	movs	r2, #100	; 0x64
  8000346:	fb03 f202 	mul.w	r2, r3, r2
- 800034a:	4b2d      	ldr	r3, [pc, #180]	; (8000400 <buttonCheck+0x11c>)
+ 800034a:	4b30      	ldr	r3, [pc, #192]	; (800040c <checkButtons+0x128>)
  800034c:	681b      	ldr	r3, [r3, #0]
  800034e:	4413      	add	r3, r2
- 8000350:	4a2b      	ldr	r2, [pc, #172]	; (8000400 <buttonCheck+0x11c>)
+ 8000350:	4a2e      	ldr	r2, [pc, #184]	; (800040c <checkButtons+0x128>)
  8000352:	6013      	str	r3, [r2, #0]
 
 		// ensure maxCycleCount is between 1 and 20.
 		if(maxCycleCount < 1) // cycle < 100ms.
- 8000354:	4b2a      	ldr	r3, [pc, #168]	; (8000400 <buttonCheck+0x11c>)
+ 8000354:	4b2d      	ldr	r3, [pc, #180]	; (800040c <checkButtons+0x128>)
  8000356:	681b      	ldr	r3, [r3, #0]
  8000358:	2b00      	cmp	r3, #0
- 800035a:	dc02      	bgt.n	8000362 <buttonCheck+0x7e>
+ 800035a:	dc02      	bgt.n	8000362 <checkButtons+0x7e>
 			maxCycleCount = 20; // set cycle to 2s.
- 800035c:	4b28      	ldr	r3, [pc, #160]	; (8000400 <buttonCheck+0x11c>)
+ 800035c:	4b2b      	ldr	r3, [pc, #172]	; (800040c <checkButtons+0x128>)
  800035e:	2214      	movs	r2, #20
  8000360:	601a      	str	r2, [r3, #0]
 	}
+	lastState1 = state;
+ 8000362:	4a28      	ldr	r2, [pc, #160]	; (8000404 <checkButtons+0x120>)
+ 8000364:	79fb      	ldrb	r3, [r7, #7]
+ 8000366:	7013      	strb	r3, [r2, #0]
 
 	// check button 2
-	state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
- 8000362:	2101      	movs	r1, #1
- 8000364:	4823      	ldr	r0, [pc, #140]	; (80003f4 <buttonCheck+0x110>)
- 8000366:	f000 fed1 	bl	800110c <HAL_GPIO_ReadPin>
- 800036a:	4603      	mov	r3, r0
- 800036c:	71fb      	strb	r3, [r7, #7]
+	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
+ 8000368:	2102      	movs	r1, #2
+ 800036a:	4825      	ldr	r0, [pc, #148]	; (8000400 <checkButtons+0x11c>)
+ 800036c:	f000 fece 	bl	800110c <HAL_GPIO_ReadPin>
+ 8000370:	4603      	mov	r3, r0
+ 8000372:	71fb      	strb	r3, [r7, #7]
 	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressing
- 800036e:	79fb      	ldrb	r3, [r7, #7]
- 8000370:	2b01      	cmp	r3, #1
- 8000372:	d109      	bne.n	8000388 <buttonCheck+0xa4>
- 8000374:	4b24      	ldr	r3, [pc, #144]	; (8000408 <buttonCheck+0x124>)
- 8000376:	781b      	ldrb	r3, [r3, #0]
- 8000378:	2b01      	cmp	r3, #1
- 800037a:	d105      	bne.n	8000388 <buttonCheck+0xa4>
-		holdTime2 += 10; // add 10ms to holdTime1
- 800037c:	4b23      	ldr	r3, [pc, #140]	; (800040c <buttonCheck+0x128>)
- 800037e:	681b      	ldr	r3, [r3, #0]
- 8000380:	330a      	adds	r3, #10
- 8000382:	4a22      	ldr	r2, [pc, #136]	; (800040c <buttonCheck+0x128>)
- 8000384:	6013      	str	r3, [r2, #0]
+ 8000374:	79fb      	ldrb	r3, [r7, #7]
+ 8000376:	2b01      	cmp	r3, #1
+ 8000378:	d109      	bne.n	800038e <checkButtons+0xaa>
+ 800037a:	4b26      	ldr	r3, [pc, #152]	; (8000414 <checkButtons+0x130>)
+ 800037c:	781b      	ldrb	r3, [r3, #0]
+ 800037e:	2b01      	cmp	r3, #1
+ 8000380:	d105      	bne.n	800038e <checkButtons+0xaa>
+		holdTime2 += 10; // add 10ms to holdTime2
+ 8000382:	4b25      	ldr	r3, [pc, #148]	; (8000418 <checkButtons+0x134>)
+ 8000384:	681b      	ldr	r3, [r3, #0]
+ 8000386:	330a      	adds	r3, #10
+ 8000388:	4a23      	ldr	r2, [pc, #140]	; (8000418 <checkButtons+0x134>)
+ 800038a:	6013      	str	r3, [r2, #0]
+ 800038c:	e031      	b.n	80003f2 <checkButtons+0x10e>
+	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
+ 800038e:	79fb      	ldrb	r3, [r7, #7]
+ 8000390:	2b00      	cmp	r3, #0
+ 8000392:	d12e      	bne.n	80003f2 <checkButtons+0x10e>
+ 8000394:	4b1b      	ldr	r3, [pc, #108]	; (8000404 <checkButtons+0x120>)
+ 8000396:	781b      	ldrb	r3, [r3, #0]
+ 8000398:	2b01      	cmp	r3, #1
+ 800039a:	d12a      	bne.n	80003f2 <checkButtons+0x10e>
+		if(holdTime2 < 500)
+ 800039c:	4b1e      	ldr	r3, [pc, #120]	; (8000418 <checkButtons+0x134>)
+ 800039e:	681b      	ldr	r3, [r3, #0]
+ 80003a0:	f5b3 7ffa 	cmp.w	r3, #500	; 0x1f4
+ 80003a4:	da0e      	bge.n	80003c4 <checkButtons+0xe0>
+			// change effect.
+			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
+ 80003a6:	4b1d      	ldr	r3, [pc, #116]	; (800041c <checkButtons+0x138>)
+ 80003a8:	681b      	ldr	r3, [r3, #0]
+ 80003aa:	1c59      	adds	r1, r3, #1
+ 80003ac:	4b1c      	ldr	r3, [pc, #112]	; (8000420 <checkButtons+0x13c>)
+ 80003ae:	fb83 3201 	smull	r3, r2, r3, r1
+ 80003b2:	17cb      	asrs	r3, r1, #31
+ 80003b4:	1ad2      	subs	r2, r2, r3
+ 80003b6:	4613      	mov	r3, r2
+ 80003b8:	005b      	lsls	r3, r3, #1
+ 80003ba:	4413      	add	r3, r2
+ 80003bc:	1aca      	subs	r2, r1, r3
+ 80003be:	4b17      	ldr	r3, [pc, #92]	; (800041c <checkButtons+0x138>)
+ 80003c0:	601a      	str	r2, [r3, #0]
+ 80003c2:	e00f      	b.n	80003e4 <checkButtons+0x100>
+		else
+			maxCycleCount = maxCycleCount + holdTime1 / 200 * 100; // tang 100ms sau moi 200ms nut duoc nhan.
+ 80003c4:	4b10      	ldr	r3, [pc, #64]	; (8000408 <checkButtons+0x124>)
+ 80003c6:	681b      	ldr	r3, [r3, #0]
+ 80003c8:	4a11      	ldr	r2, [pc, #68]	; (8000410 <checkButtons+0x12c>)
+ 80003ca:	fb82 1203 	smull	r1, r2, r2, r3
+ 80003ce:	1192      	asrs	r2, r2, #6
+ 80003d0:	17db      	asrs	r3, r3, #31
+ 80003d2:	1ad3      	subs	r3, r2, r3
+ 80003d4:	2264      	movs	r2, #100	; 0x64
+ 80003d6:	fb03 f202 	mul.w	r2, r3, r2
+ 80003da:	4b0c      	ldr	r3, [pc, #48]	; (800040c <checkButtons+0x128>)
+ 80003dc:	681b      	ldr	r3, [r3, #0]
+ 80003de:	4413      	add	r3, r2
+ 80003e0:	4a0a      	ldr	r2, [pc, #40]	; (800040c <checkButtons+0x128>)
+ 80003e2:	6013      	str	r3, [r2, #0]
 
 		// ensure maxCycleCount is between 1 and 20.
 		if(maxCycleCount > 20) // cycle > 2s.
+ 80003e4:	4b09      	ldr	r3, [pc, #36]	; (800040c <checkButtons+0x128>)
+ 80003e6:	681b      	ldr	r3, [r3, #0]
+ 80003e8:	2b14      	cmp	r3, #20
+ 80003ea:	dd02      	ble.n	80003f2 <checkButtons+0x10e>
 			maxCycleCount = 1; // set cycle to 100ms.
+ 80003ec:	4b07      	ldr	r3, [pc, #28]	; (800040c <checkButtons+0x128>)
+ 80003ee:	2201      	movs	r2, #1
+ 80003f0:	601a      	str	r2, [r3, #0]
 	}
+	lastState2 = state;
+ 80003f2:	4a08      	ldr	r2, [pc, #32]	; (8000414 <checkButtons+0x130>)
+ 80003f4:	79fb      	ldrb	r3, [r7, #7]
+ 80003f6:	7013      	strb	r3, [r2, #0]
 }
- 8000386:	e031      	b.n	80003ec <buttonCheck+0x108>
-	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
- 8000388:	79fb      	ldrb	r3, [r7, #7]
- 800038a:	2b00      	cmp	r3, #0
- 800038c:	d12e      	bne.n	80003ec <buttonCheck+0x108>
- 800038e:	4b1a      	ldr	r3, [pc, #104]	; (80003f8 <buttonCheck+0x114>)
- 8000390:	781b      	ldrb	r3, [r3, #0]
- 8000392:	2b01      	cmp	r3, #1
- 8000394:	d12a      	bne.n	80003ec <buttonCheck+0x108>
-		if(holdTime2 < 500)
- 8000396:	4b1d      	ldr	r3, [pc, #116]	; (800040c <buttonCheck+0x128>)
- 8000398:	681b      	ldr	r3, [r3, #0]
- 800039a:	f5b3 7ffa 	cmp.w	r3, #500	; 0x1f4
- 800039e:	da0e      	bge.n	80003be <buttonCheck+0xda>
-			effect = (effect + 1) % 3; // there are 3 effect;
- 80003a0:	4b1b      	ldr	r3, [pc, #108]	; (8000410 <buttonCheck+0x12c>)
- 80003a2:	681b      	ldr	r3, [r3, #0]
- 80003a4:	1c59      	adds	r1, r3, #1
- 80003a6:	4b1b      	ldr	r3, [pc, #108]	; (8000414 <buttonCheck+0x130>)
- 80003a8:	fb83 3201 	smull	r3, r2, r3, r1
- 80003ac:	17cb      	asrs	r3, r1, #31
- 80003ae:	1ad2      	subs	r2, r2, r3
- 80003b0:	4613      	mov	r3, r2
- 80003b2:	005b      	lsls	r3, r3, #1
- 80003b4:	4413      	add	r3, r2
- 80003b6:	1aca      	subs	r2, r1, r3
- 80003b8:	4b15      	ldr	r3, [pc, #84]	; (8000410 <buttonCheck+0x12c>)
- 80003ba:	601a      	str	r2, [r3, #0]
- 80003bc:	e00f      	b.n	80003de <buttonCheck+0xfa>
-			maxCycleCount = maxCycleCount + holdTime1 / 200 * 100; // tang 100ms sau moi 200ms nut duoc nhan.
- 80003be:	4b0f      	ldr	r3, [pc, #60]	; (80003fc <buttonCheck+0x118>)
- 80003c0:	681b      	ldr	r3, [r3, #0]
- 80003c2:	4a10      	ldr	r2, [pc, #64]	; (8000404 <buttonCheck+0x120>)
- 80003c4:	fb82 1203 	smull	r1, r2, r2, r3
- 80003c8:	1192      	asrs	r2, r2, #6
- 80003ca:	17db      	asrs	r3, r3, #31
- 80003cc:	1ad3      	subs	r3, r2, r3
- 80003ce:	2264      	movs	r2, #100	; 0x64
- 80003d0:	fb03 f202 	mul.w	r2, r3, r2
- 80003d4:	4b0a      	ldr	r3, [pc, #40]	; (8000400 <buttonCheck+0x11c>)
- 80003d6:	681b      	ldr	r3, [r3, #0]
- 80003d8:	4413      	add	r3, r2
- 80003da:	4a09      	ldr	r2, [pc, #36]	; (8000400 <buttonCheck+0x11c>)
- 80003dc:	6013      	str	r3, [r2, #0]
-		if(maxCycleCount > 20) // cycle > 2s.
- 80003de:	4b08      	ldr	r3, [pc, #32]	; (8000400 <buttonCheck+0x11c>)
- 80003e0:	681b      	ldr	r3, [r3, #0]
- 80003e2:	2b14      	cmp	r3, #20
- 80003e4:	dd02      	ble.n	80003ec <buttonCheck+0x108>
-			maxCycleCount = 1; // set cycle to 100ms.
- 80003e6:	4b06      	ldr	r3, [pc, #24]	; (8000400 <buttonCheck+0x11c>)
- 80003e8:	2201      	movs	r2, #1
- 80003ea:	601a      	str	r2, [r3, #0]
-}
- 80003ec:	bf00      	nop
- 80003ee:	3708      	adds	r7, #8
- 80003f0:	46bd      	mov	sp, r7
- 80003f2:	bd80      	pop	{r7, pc}
- 80003f4:	40010c00 	.word	0x40010c00
- 80003f8:	2000010c 	.word	0x2000010c
- 80003fc:	20000110 	.word	0x20000110
- 8000400:	20000000 	.word	0x20000000
- 8000404:	51eb851f 	.word	0x51eb851f
- 8000408:	20000114 	.word	0x20000114
- 800040c:	20000118 	.word	0x20000118
- 8000410:	20000108 	.word	0x20000108
- 8000414:	55555556 	.word	0x55555556
+ 80003f8:	bf00      	nop
+ 80003fa:	3708      	adds	r7, #8
+ 80003fc:	46bd      	mov	sp, r7
+ 80003fe:	bd80      	pop	{r7, pc}
+ 8000400:	40010c00 	.word	0x40010c00
+ 8000404:	2000010c 	.word	0x2000010c
+ 8000408:	20000110 	.word	0x20000110
+ 800040c:	20000000 	.word	0x20000000
+ 8000410:	51eb851f 	.word	0x51eb851f
+ 8000414:	20000114 	.word	0x20000114
+ 8000418:	20000118 	.word	0x20000118
+ 800041c:	20000108 	.word	0x20000108
+ 8000420:	55555556 	.word	0x55555556
 
-08000418 <HAL_TIM_PeriodElapsedCallback>:
+08000424 <HAL_TIM_PeriodElapsedCallback>:
+
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
- 8000418:	b580      	push	{r7, lr}
- 800041a:	b082      	sub	sp, #8
- 800041c:	af00      	add	r7, sp, #0
- 800041e:	6078      	str	r0, [r7, #4]
+ 8000424:	b580      	push	{r7, lr}
+ 8000426:	b082      	sub	sp, #8
+ 8000428:	af00      	add	r7, sp, #0
+ 800042a:	6078      	str	r0, [r7, #4]
+	// timer3 period is 100ms
 	if (htim == &htim3 ) {
- 8000420:	687b      	ldr	r3, [r7, #4]
- 8000422:	4a11      	ldr	r2, [pc, #68]	; (8000468 <HAL_TIM_PeriodElapsedCallback+0x50>)
- 8000424:	4293      	cmp	r3, r2
- 8000426:	d115      	bne.n	8000454 <HAL_TIM_PeriodElapsedCallback+0x3c>
+ 800042c:	687b      	ldr	r3, [r7, #4]
+ 800042e:	4a0e      	ldr	r2, [pc, #56]	; (8000468 <HAL_TIM_PeriodElapsedCallback+0x44>)
+ 8000430:	4293      	cmp	r3, r2
+ 8000432:	d10f      	bne.n	8000454 <HAL_TIM_PeriodElapsedCallback+0x30>
 		unitCycleCount++;
- 8000428:	4b10      	ldr	r3, [pc, #64]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x54>)
- 800042a:	681b      	ldr	r3, [r3, #0]
- 800042c:	3301      	adds	r3, #1
- 800042e:	4a0f      	ldr	r2, [pc, #60]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x54>)
- 8000430:	6013      	str	r3, [r2, #0]
-		if(unitCycleCount >= maxCycleCount) {
- 8000432:	4b0e      	ldr	r3, [pc, #56]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x54>)
- 8000434:	681a      	ldr	r2, [r3, #0]
- 8000436:	4b0e      	ldr	r3, [pc, #56]	; (8000470 <HAL_TIM_PeriodElapsedCallback+0x58>)
- 8000438:	681b      	ldr	r3, [r3, #0]
- 800043a:	429a      	cmp	r2, r3
- 800043c:	db01      	blt.n	8000442 <HAL_TIM_PeriodElapsedCallback+0x2a>
+ 8000434:	4b0d      	ldr	r3, [pc, #52]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x48>)
+ 8000436:	681b      	ldr	r3, [r3, #0]
+ 8000438:	3301      	adds	r3, #1
+ 800043a:	4a0c      	ldr	r2, [pc, #48]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x48>)
+ 800043c:	6013      	str	r3, [r2, #0]
+		if(unitCycleCount == maxCycleCount) {
+ 800043e:	4b0b      	ldr	r3, [pc, #44]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x48>)
+ 8000440:	681a      	ldr	r2, [r3, #0]
+ 8000442:	4b0b      	ldr	r3, [pc, #44]	; (8000470 <HAL_TIM_PeriodElapsedCallback+0x4c>)
+ 8000444:	681b      	ldr	r3, [r3, #0]
+ 8000446:	429a      	cmp	r2, r3
+ 8000448:	d104      	bne.n	8000454 <HAL_TIM_PeriodElapsedCallback+0x30>
 			toggleLeds();
- 800043e:	f7ff ff1b 	bl	8000278 <toggleLeds>
-		}
-		if(unitCycleCount > maxCycleCount)
- 8000442:	4b0a      	ldr	r3, [pc, #40]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x54>)
- 8000444:	681a      	ldr	r2, [r3, #0]
- 8000446:	4b0a      	ldr	r3, [pc, #40]	; (8000470 <HAL_TIM_PeriodElapsedCallback+0x58>)
- 8000448:	681b      	ldr	r3, [r3, #0]
- 800044a:	429a      	cmp	r2, r3
- 800044c:	dd02      	ble.n	8000454 <HAL_TIM_PeriodElapsedCallback+0x3c>
+ 800044a:	f7ff ff15 	bl	8000278 <toggleLeds>
 			unitCycleCount = 0;
- 800044e:	4b07      	ldr	r3, [pc, #28]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x54>)
+ 800044e:	4b07      	ldr	r3, [pc, #28]	; (800046c <HAL_TIM_PeriodElapsedCallback+0x48>)
  8000450:	2200      	movs	r2, #0
  8000452:	601a      	str	r2, [r3, #0]
+		}
 	}
 
+	// timer4 period is 10ms
 	if (htim == &htim4 )
  8000454:	687b      	ldr	r3, [r7, #4]
- 8000456:	4a07      	ldr	r2, [pc, #28]	; (8000474 <HAL_TIM_PeriodElapsedCallback+0x5c>)
+ 8000456:	4a07      	ldr	r2, [pc, #28]	; (8000474 <HAL_TIM_PeriodElapsedCallback+0x50>)
  8000458:	4293      	cmp	r3, r2
- 800045a:	d101      	bne.n	8000460 <HAL_TIM_PeriodElapsedCallback+0x48>
-		buttonCheck();
- 800045c:	f7ff ff42 	bl	80002e4 <buttonCheck>
+ 800045a:	d101      	bne.n	8000460 <HAL_TIM_PeriodElapsedCallback+0x3c>
+		checkButtons();
+ 800045c:	f7ff ff42 	bl	80002e4 <checkButtons>
 }
  8000460:	bf00      	nop
  8000462:	3708      	adds	r7, #8
@@ -5104,7 +5107,7 @@ void HAL_TIM_IRQHandler(TIM_HandleTypeDef *htim)
 #else
       HAL_TIM_PeriodElapsedCallback(htim);
  8001c7e:	6878      	ldr	r0, [r7, #4]
- 8001c80:	f7fe fbca 	bl	8000418 <HAL_TIM_PeriodElapsedCallback>
+ 8001c80:	f7fe fbd0 	bl	8000424 <HAL_TIM_PeriodElapsedCallback>
 #endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
     }
   }

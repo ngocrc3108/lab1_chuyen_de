@@ -180,7 +180,7 @@ int holdTime2 = 0;
 int unitCycleCount = 0; // 1 cycle = 100ms; 0 -> maxCycleCount1;
 int maxCycleCount = 1; // cycle: 100ms -> 2s
 
-void buttonCheck() {
+void checkButtons() {
 	// this function is called every 10ms
 
 	// check button 1
@@ -197,6 +197,7 @@ void buttonCheck() {
 		if(maxCycleCount < 1) // cycle < 100ms.
 			maxCycleCount = 20; // set cycle to 2s.
 	}
+	lastState1 = state;
 
 	// check button 2
 	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
@@ -213,20 +214,23 @@ void buttonCheck() {
 		if(maxCycleCount > 20) // cycle > 2s.
 			maxCycleCount = 1; // set cycle to 100ms.
 	}
+	lastState2 = state;
 }
 
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	// timer3 period is 100ms
 	if (htim == &htim3 ) {
 		unitCycleCount++;
-		if(unitCycleCount >= maxCycleCount) {
+		if(unitCycleCount == maxCycleCount) {
 			toggleLeds();
-		}
-		if(unitCycleCount > maxCycleCount)
 			unitCycleCount = 0;
+		}
 	}
 
+	// timer4 period is 10ms
 	if (htim == &htim4 )
-		buttonCheck();
+		checkButtons();
 }
 
 /**
