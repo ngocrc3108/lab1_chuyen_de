@@ -109,12 +109,6 @@ int main(void)
   }
 }
 
-void resetLed() {
-	HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
-}
-
 int effectPhase = 0;
 int selectedtEffect = 0;
 
@@ -219,7 +213,7 @@ void checkButtons() {
 
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	// timer3 period is 100ms
+	// timer3's period is 100ms
 	if (htim == &htim3 ) {
 		unitCycleCount++;
 		if(unitCycleCount == maxCycleCount) {
@@ -228,7 +222,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 		}
 	}
 
-	// timer4 period is 10ms
+	// timer4's period is 10ms
 	if (htim == &htim4 )
 		checkButtons();
 }
