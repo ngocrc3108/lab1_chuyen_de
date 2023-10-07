@@ -171,7 +171,7 @@ int holdTime1 = 0;
 GPIO_PinState lastState2 = GPIO_PIN_RESET;
 int holdTime2 = 0;
 
-int unitCycleCount = 0; // 1 cycle = 100ms; 0 -> maxCycleCount1;
+int unitCycleCount = 0; // 1 unit cycle = 100ms;
 int maxCycleCount = 1; // cycle: 100ms -> 2s
 
 void checkButtons() {
@@ -185,7 +185,7 @@ void checkButtons() {
 		if(holdTime1 < 500)
 			maxCycleCount--;
 		else
-			maxCycleCount = maxCycleCount - holdTime1 / 200 * 100; // giam 100ms sau moi 200ms nut duoc nhan.
+			maxCycleCount = maxCycleCount - holdTime1 / 200; // giam 100ms sau moi 200ms nut duoc nhan.
 
 		// ensure maxCycleCount is between 1 and 20.
 		if(maxCycleCount < 1) // cycle < 100ms.
@@ -202,7 +202,7 @@ void checkButtons() {
 			// change effect.
 			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
 		else
-			maxCycleCount = maxCycleCount + holdTime1 / 200 * 100; // tang 100ms sau moi 200ms nut duoc nhan.
+			maxCycleCount = maxCycleCount + holdTime1 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
 
 		// ensure maxCycleCount is between 1 and 20.
 		if(maxCycleCount > 20) // cycle > 2s.
