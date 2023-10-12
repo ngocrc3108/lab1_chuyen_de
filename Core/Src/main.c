@@ -179,7 +179,7 @@ void checkButtons() {
 
 	// check button 1
 	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
-	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressing
+	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
 		holdTime1 += 10; // add 10ms to holdTime1
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
 		if(holdTime1 < 500)
@@ -195,7 +195,7 @@ void checkButtons() {
 
 	// check button 2
 	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
-	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressing
+	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressed
 		holdTime2 += 10; // add 10ms to holdTime2
 	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
 		if(holdTime2 < 500)
