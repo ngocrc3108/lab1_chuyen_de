@@ -197,12 +197,12 @@ void checkButtons() {
 	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
 	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressing
 		holdTime2 += 10; // add 10ms to holdTime2
-	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
+	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
 		if(holdTime2 < 500)
 			// change effect.
 			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
 		else
-			maxCycleCount = maxCycleCount + holdTime1 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
+			maxCycleCount = maxCycleCount + holdTime2 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
 
 		// ensure maxCycleCount is between 1 and 20.
 		if(maxCycleCount > 20) // cycle > 2s.
