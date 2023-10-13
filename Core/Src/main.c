@@ -68,7 +68,6 @@ static void MX_USART1_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -96,135 +95,20 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_USART1_UART_Init();
+  /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim3);
   HAL_TIM_Base_Start_IT(&htim4);
-  /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
   }
-}
-
-int effectPhase = 0;
-int selectedtEffect = 0;
-
-void effect1() {
-	HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-	HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
-	HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
-}
-
-void effect2(int effectPhase) {
-	int temp = effectPhase % 3;
-	if(temp == 0)
-		HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-	else if(temp == 1)
-		HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
-	else
-		HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
-}
-
-void effect3(int effectPhase) {
-	int temp = effectPhase / 3;
-	if(temp == 0)
-		HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
-	else if(temp == 1)
-		HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
-	else
-		HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
-}
-
-void turnOffAllLeds() {
-	HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
-}
-
-void toggleLeds() {
-	// this function is called every 100ms
-
-	// turn all LEDs off at the beginning of all effect.
-	if(effectPhase == 0)
-		turnOffAllLeds();
-
-	// Check which effect is being used and execute it.
-	if(selectedtEffect == 0)
-		effect1();
-	else if(selectedtEffect == 1)
-		effect2(effectPhase);
-	else
-		effect3(effectPhase);
-
-	// update effectPhase
-	effectPhase = (effectPhase + 1) % 9; // there are 9 phase, 0 -> 8.
-}
-
-// button 1
-GPIO_PinState lastState1 = GPIO_PIN_RESET;
-int holdTime1 = 0;
-
-// button 2
-GPIO_PinState lastState2 = GPIO_PIN_RESET;
-int holdTime2 = 0;
-
-int unitCycleCount = 0; // 1 unit cycle = 100ms;
-int maxCycleCount = 1; // cycle: 100ms -> 2s
-
-void checkButtons() {
-	// this function is called every 10ms
-
-	// check button 1
-	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
-	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
-		holdTime1 += 10; // add 10ms to holdTime1
-	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
-		if(holdTime1 < 500)
-			maxCycleCount--;
-		else
-			maxCycleCount = maxCycleCount - holdTime1 / 200; // giam 100ms sau moi 200ms nut duoc nhan.
-
-		// ensure maxCycleCount is between 1 and 20.
-		if(maxCycleCount < 1) // cycle < 100ms.
-			maxCycleCount = 20; // set cycle to 2s.
-	}
-	lastState1 = state;
-
-	// check button 2
-	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
-	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressed
-		holdTime2 += 10; // add 10ms to holdTime2
-	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
-		if(holdTime2 < 500)
-			// change effect.
-			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
-		else
-			maxCycleCount = maxCycleCount + holdTime2 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
-
-		// ensure maxCycleCount is between 1 and 20.
-		if(maxCycleCount > 20) // cycle > 2s.
-			maxCycleCount = 1; // set cycle to 100ms.
-	}
-	lastState2 = state;
-}
-
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	// timer3's period is 100ms
-	if (htim == &htim3 ) {
-		unitCycleCount++;
-		if(unitCycleCount == maxCycleCount) {
-			toggleLeds();
-			unitCycleCount = 0;
-		}
-	}
-
-	// timer4's period is 10ms
-	if (htim == &htim4 )
-		checkButtons();
+  /* USER CODE END 3 */
 }
 
 /**
@@ -330,7 +214,7 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 720;
+  htim4.Init.Prescaler = 7200;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 100-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -402,8 +286,8 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_R_Pin|LED_G_Pin|LED_B_Pin, GPIO_PIN_RESET);
@@ -412,7 +296,7 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = BUTTON_1_Pin|BUTTON_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_R_Pin LED_G_Pin LED_B_Pin */
   GPIO_InitStruct.Pin = LED_R_Pin|LED_G_Pin|LED_B_Pin;
@@ -426,6 +310,124 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+int effectPhase = 0;
+int selectedtEffect = 0;
+
+void effect1() {
+	HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+	HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
+	HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+}
+
+void effect2(int effectPhase) {
+	int temp = effectPhase % 3;
+	if(temp == 0)
+		HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+	else if(temp == 1)
+		HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
+	else
+		HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+}
+
+void effect3(int effectPhase) {
+	int temp = effectPhase / 4;
+	if(temp == 0)
+		HAL_GPIO_TogglePin(LED_R_GPIO_Port, LED_R_Pin);
+	else if(temp == 1)
+		HAL_GPIO_TogglePin(LED_G_GPIO_Port, LED_G_Pin);
+	else
+		HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+}
+
+void turnOffAllLeds() {
+	HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
+}
+
+void toggleLeds() {
+	// this function is called every 100ms
+
+	// Check which effect is being used and execute it.
+	if(selectedtEffect == 0)
+		effect1();
+	else if(selectedtEffect == 1)
+		effect2(effectPhase);
+	else
+		effect3(effectPhase);
+
+	// update effectPhase
+	effectPhase = (effectPhase + 1) % 12; // there are 12 phase, 0 -> 11.
+}
+
+// button 1
+GPIO_PinState lastState1 = GPIO_PIN_RESET;
+int holdTime1 = 0;
+
+// button 2
+GPIO_PinState lastState2 = GPIO_PIN_RESET;
+int holdTime2 = 0;
+
+int unitCycleCount = 0; // 1 unit cycle = 100ms;
+int maxCycleCount = 1; // cycle: 100ms -> 2s
+
+void checkButtons() {
+	// this function is called every 10ms
+
+	// check button 1
+	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
+	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
+		holdTime1 += 10; // add 10ms to holdTime1
+	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
+		if(holdTime1 < 500)
+			maxCycleCount--;
+		else
+			maxCycleCount = maxCycleCount - holdTime1 / 200; // giam 100ms sau moi 200ms nut duoc nhan.
+
+		// ensure maxCycleCount is between 1 and 20.
+		if(maxCycleCount < 1) // cycle < 100ms.
+			maxCycleCount = 20; // set cycle to 2s.
+		holdTime1 = 0;
+	}
+	lastState1 = state;
+
+	// check button 2
+	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
+	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressed
+		holdTime2 += 10; // add 10ms to holdTime2
+	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
+		if(holdTime2 < 500) {
+			// change effect.
+			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
+			turnOffAllLeds();
+			effectPhase = 0;
+		}
+		else
+			maxCycleCount = maxCycleCount + holdTime2 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
+
+		// ensure maxCycleCount is between 1 and 20.
+		if(maxCycleCount > 20) // cycle > 2s.
+			maxCycleCount = 1; // set cycle to 100ms.
+		holdTime2 = 0;
+	}
+	lastState2 = state;
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	// timer3's period is 100ms
+	if (htim == &htim3 ) {
+		unitCycleCount++;
+		if(unitCycleCount >= maxCycleCount) {
+			toggleLeds();
+			unitCycleCount = 0;
+		}
+	}
+
+	// timer4's period is 10ms
+	if (htim == &htim4 )
+		checkButtons();
+}
 
 /* USER CODE END 4 */
 

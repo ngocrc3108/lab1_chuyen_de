@@ -1,4 +1,4 @@
-/Debug
-/Drivers
-/.metadata
-/.settings
+Debug/
+Drivers/
+.metadata/
+.settings/ 
