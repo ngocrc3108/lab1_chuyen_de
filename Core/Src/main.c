@@ -31,6 +31,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define DEF_TIMER_MS 10
 
 /* USER CODE END PD */
 
@@ -214,7 +215,7 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 7200;
+  htim4.Init.Prescaler = 7200-1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 100-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -340,7 +341,8 @@ void effect3(int effectPhase) {
 		HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
 }
 
-void turnOffAllLeds() {
+void turnOnAllLeds() {
+	// set pin to 0 for turning the led on. check schematic.
 	HAL_GPIO_WritePin(LED_R_GPIO_Port, LED_R_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
@@ -358,7 +360,7 @@ void toggleLeds() {
 		effect3(effectPhase);
 
 	// update effectPhase
-	effectPhase = (effectPhase + 1) % 12; // there are 12 phase, 0 -> 11.
+	effectPhase = (effectPhase + 1) % 12; // there are 9 phase, 0 -> 8.
 }
 
 // button 1
@@ -380,15 +382,27 @@ void checkButtons() {
 	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
 		holdTime1 += 10; // add 10ms to holdTime1
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
-		if(holdTime1 < 500)
-			maxCycleCount--;
-		else
-			maxCycleCount = maxCycleCount - holdTime1 / 200; // giam 100ms sau moi 200ms nut duoc nhan.
+		HAL_TIM_Base_Stop_IT(&htim3); // stop the timer to update its period.
+		int newPeriod = 0;
 
-		// ensure maxCycleCount is between 1 and 20.
-		if(maxCycleCount < 1) // cycle < 100ms.
-			maxCycleCount = 20; // set cycle to 2s.
+		if(holdTime1 < 500)
+			newPeriod = htim3.Instance->ARR - 100 * DEF_TIMER_MS; // newPeriod = oldPeriod - 100ms
+		else
+			newPeriod = htim3.Instance->ARR - holdTime1 / 200 * 100 * DEF_TIMER_MS; // giam 100ms cho moi 200ms nut duoc nhan
+
+		// ensure new Period is between 100 and 2000ms.
+		if(newPeriod > 2000 * DEF_TIMER_MS - 1)
+			newPeriod = 100 * DEF_TIMER_MS;
+		else if(newPeriod < 100 * DEF_TIMER_MS - 1)
+			newPeriod = 2000 * DEF_TIMER_MS - 1;
+
+		// update period and reset counter.
+		__HAL_TIM_SET_AUTORELOAD(&htim3, (uint32_t)newPeriod);
+		__HAL_TIM_SET_COUNTER(&htim3, 0);
+
+		// reset holdTime and restart the timer.
 		holdTime1 = 0;
+		HAL_TIM_Base_Start_IT(&htim3);
 	}
 	lastState1 = state;
 
@@ -400,15 +414,21 @@ void checkButtons() {
 		if(holdTime2 < 500) {
 			// change effect.
 			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
-			turnOffAllLeds();
+			turnOnAllLeds();
 			effectPhase = 0;
 		}
-		else
-			maxCycleCount = maxCycleCount + holdTime2 / 200; // tang 100ms sau moi 200ms nut duoc nhan.
+		else {
+			HAL_TIM_Base_Stop_IT(&htim3); // stop the timer to update its period.
+			int temp = htim3.Instance->ARR + holdTime2 / 200 * 100 * DEF_TIMER_MS; // tang 100ms cho moi 200ms nut duoc nhan
 
-		// ensure maxCycleCount is between 1 and 20.
-		if(maxCycleCount > 20) // cycle > 2s.
-			maxCycleCount = 1; // set cycle to 100ms.
+			// ensure new Period is between 100 and 2000ms.
+			if(temp > 2000 * DEF_TIMER_MS - 1)
+				temp = 100 * DEF_TIMER_MS - 1;
+
+			__HAL_TIM_SET_AUTORELOAD(&htim3, (uint32_t)temp); // update period
+			__HAL_TIM_SET_COUNTER(&htim3, 0); // reset counter
+			HAL_TIM_Base_Start_IT(&htim3); // restart timer
+		}
 		holdTime2 = 0;
 	}
 	lastState2 = state;
@@ -416,12 +436,9 @@ void checkButtons() {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	// timer3's period is 100ms
+	GPIOA->ODR = htim3.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
 	if (htim == &htim3 ) {
-		unitCycleCount++;
-		if(unitCycleCount >= maxCycleCount) {
 			toggleLeds();
-			unitCycleCount = 0;
-		}
 	}
 
 	// timer4's period is 10ms
