@@ -433,10 +433,9 @@ void checkButtons() {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	// timer3's period is 100ms
-	GPIOA->ODR = htim3.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
-	if (htim == &htim3 ) {
-			toggleLeds();
-	}
+	//GPIOA->ODR = htim3.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
+	if (htim == &htim3 )
+		toggleLeds();
 
 	// timer4's period is 10ms
 	if (htim == &htim4 )
