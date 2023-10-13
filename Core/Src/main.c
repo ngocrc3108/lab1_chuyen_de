@@ -371,9 +371,6 @@ int holdTime1 = 0;
 GPIO_PinState lastState2 = GPIO_PIN_RESET;
 int holdTime2 = 0;
 
-int unitCycleCount = 0; // 1 unit cycle = 100ms;
-int maxCycleCount = 1; // cycle: 100ms -> 2s
-
 void checkButtons() {
 	// this function is called every 10ms
 
