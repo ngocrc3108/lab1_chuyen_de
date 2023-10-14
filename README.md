@@ -5,7 +5,7 @@ Hiệu ứng 2 và hiệu ứng 3 có 12 phase (từ phase 0 đến phase 11): m
 
 ### Cấu hình timer
 ![Công thức tính](/Images/16cap1.png)  
-system clock = 72Mhz.
+System clock = 72Mhz.
 
 Chu kì của timer3 là 100ms. Vậy ta chọn ra được prescaler = 7200-1 và counter period = 1000-1.
 Sử dụng timer3 để làm chu kì chớp tắt leds.
