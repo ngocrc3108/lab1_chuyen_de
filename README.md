@@ -13,7 +13,7 @@ Sử dụng timer3 để làm chu kì chớp tắt leds.
 Chu kì của timer4 là 10ms. Vậy ta chọn ra được prescaler = 7200-1 và counter period = 100-1.
 
 ### Nút nhấn
-Thay đổi chu kì của timer trực tiếp bằng cách set thanh ghi ARR của timer3(auto-reload register).
+Thay đổi chu kì của chớp tắt led trực tiếp bằng cách update thanh ghi ARR của timer3 (auto-reload register).
 
-Sử dụng timer4 để check buttons.
-Phát hiện cạch của nút nhấn(sự nhấn nhả) bằng cách kiểm tra trạng thái của nút nhấn ở chu kì hiện tại và chu kì trước đó. Nếu chu kì trước trạng thái là GPIO_PIN_SET và chu kì hiện tại là GPIO_PIN_RESET thì nút nhấn vừa được thả ra. 
+Sử dụng timer4 để check buttons (kiểm tra trạng thái của nút nhấn).
+Phát hiện cạch của nút nhấn (sự nhấn nhả) bằng cách kiểm tra trạng thái của nút nhấn ở chu kì hiện tại và chu kì trước đó. Nếu chu kì trước trạng thái là GPIO_PIN_SET và chu kì hiện tại là GPIO_PIN_RESET thì nút nhấn vừa được thả ra. 
