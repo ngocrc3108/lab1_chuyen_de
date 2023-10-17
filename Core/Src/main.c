@@ -32,7 +32,9 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define DEF_TIMER_MS 10
-
+#define TIMER_FOR_LED htim3
+#define TIMER_FOR_BUTTON htim4
+#define SCAN_PERIOD 5
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -103,8 +105,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  //GPIO_PinState state;
   while (1)
   {
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -215,9 +219,9 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 7200-1;
+  htim4.Init.Prescaler = 7200;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 100-1;
+  htim4.Init.Period = 50-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -365,11 +369,11 @@ void toggleLeds() {
 
 // button 1
 GPIO_PinState lastState1 = GPIO_PIN_RESET;
-int holdTime1 = 0;
+uint32_t holdTime1 = 0;
 
 // button 2
 GPIO_PinState lastState2 = GPIO_PIN_RESET;
-int holdTime2 = 0;
+uint32_t holdTime2 = 0;
 
 void checkButtons() {
 	// this function is called every 10ms
@@ -377,15 +381,14 @@ void checkButtons() {
 	// check button 1
 	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
 	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
-		holdTime1 += 10; // add 10ms to holdTime1
+		holdTime1 += SCAN_PERIOD; // add 5ms to holdTime1
 	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
-		HAL_TIM_Base_Stop_IT(&htim3); // stop the timer to update its period.
+		HAL_TIM_Base_Stop_IT(&TIMER_FOR_LED); // stop the timer to update its period.
 		int newPeriod = 0;
-
 		if(holdTime1 < 500)
-			newPeriod = htim3.Instance->ARR - 100 * DEF_TIMER_MS; // newPeriod = oldPeriod - 100ms
+			newPeriod = TIMER_FOR_LED.Instance->ARR - 100 * DEF_TIMER_MS; // newPeriod = oldPeriod - 100ms
 		else
-			newPeriod = htim3.Instance->ARR - holdTime1 / 200 * 100 * DEF_TIMER_MS; // giam 100ms cho moi 200ms nut duoc nhan
+			newPeriod = TIMER_FOR_LED.Instance->ARR - holdTime1 / 200 * 100 * DEF_TIMER_MS; // giam 100ms cho moi 200ms nut duoc nhan
 
 		// ensure new Period is between 100 and 2000ms.
 		if(newPeriod > 2000 * DEF_TIMER_MS - 1)
@@ -394,19 +397,19 @@ void checkButtons() {
 			newPeriod = 2000 * DEF_TIMER_MS - 1;
 
 		// update period and reset counter.
-		__HAL_TIM_SET_AUTORELOAD(&htim3, (uint32_t)newPeriod);
-		__HAL_TIM_SET_COUNTER(&htim3, 0);
+		__HAL_TIM_SET_AUTORELOAD(&TIMER_FOR_LED, (uint32_t)newPeriod);
+		__HAL_TIM_SET_COUNTER(&TIMER_FOR_LED, 0);
 
 		// reset holdTime and restart the timer.
 		holdTime1 = 0;
-		HAL_TIM_Base_Start_IT(&htim3);
+		HAL_TIM_Base_Start_IT(&TIMER_FOR_LED);
 	}
 	lastState1 = state;
 
 	// check button 2
 	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
 	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressed
-		holdTime2 += 10; // add 10ms to holdTime2
+		holdTime2 += SCAN_PERIOD; // add 5ms to holdTime2
 	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
 		if(holdTime2 < 500) {
 			// change effect.
@@ -415,16 +418,16 @@ void checkButtons() {
 			effectPhase = 0;
 		}
 		else {
-			HAL_TIM_Base_Stop_IT(&htim3); // stop the timer to update its period.
-			int temp = htim3.Instance->ARR + holdTime2 / 200 * 100 * DEF_TIMER_MS; // tang 100ms cho moi 200ms nut duoc nhan
+			HAL_TIM_Base_Stop_IT(&TIMER_FOR_LED); // stop the timer to update its period.
+			int newPeriod = TIMER_FOR_LED.Instance->ARR + holdTime2 / 200 * 100 * DEF_TIMER_MS; // tang 100ms cho moi 200ms nut duoc nhan
 
 			// ensure new Period is between 100 and 2000ms.
-			if(temp > 2000 * DEF_TIMER_MS - 1)
-				temp = 100 * DEF_TIMER_MS - 1;
+			if(newPeriod > 2000 * DEF_TIMER_MS - 1)
+				newPeriod = 100 * DEF_TIMER_MS - 1;
 
-			__HAL_TIM_SET_AUTORELOAD(&htim3, (uint32_t)temp); // update period
-			__HAL_TIM_SET_COUNTER(&htim3, 0); // reset counter
-			HAL_TIM_Base_Start_IT(&htim3); // restart timer
+			__HAL_TIM_SET_AUTORELOAD(&TIMER_FOR_LED, (uint32_t)newPeriod); // update period
+			__HAL_TIM_SET_COUNTER(&TIMER_FOR_LED, 0); // reset counter
+			HAL_TIM_Base_Start_IT(&TIMER_FOR_LED); // restart timer
 		}
 		holdTime2 = 0;
 	}
@@ -434,11 +437,11 @@ void checkButtons() {
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	// timer3's period is 100ms
 	//GPIOA->ODR = htim3.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
-	if (htim == &htim3 )
+	if (htim == &TIMER_FOR_LED)
 		toggleLeds();
 
-	// timer4's period is 10ms
-	if (htim == &htim4 )
+	// timer4's period is 50ms
+	if (htim == &TIMER_FOR_BUTTON)
 		checkButtons();
 }
 
