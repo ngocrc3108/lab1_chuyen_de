@@ -34,7 +34,7 @@
 #define DEF_TIMER_MS 10
 #define TIMER_FOR_LED htim3
 #define TIMER_FOR_BUTTON htim4
-#define SCAN_PERIOD 30 //30ms
+#define SCAN_PERIOD 10 //30ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -221,7 +221,7 @@ static void MX_TIM4_Init(void)
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 7200-1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 300-1;
+  htim4.Init.Period = 100-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -368,21 +368,21 @@ void toggleLeds() {
 }
 
 // button 1
-GPIO_PinState lastState1 = GPIO_PIN_RESET;
+GPIO_PinState lastState1 = GPIO_PIN_SET;
 uint32_t holdTime1 = 0;
 
 // button 2
-GPIO_PinState lastState2 = GPIO_PIN_RESET;
+GPIO_PinState lastState2 = GPIO_PIN_SET;
 uint32_t holdTime2 = 0;
 
 void checkButtons() {
-	// this function is called every 5ms
+	// this function is called every 10ms
 
 	// check button 1
 	GPIO_PinState state = HAL_GPIO_ReadPin(BUTTON_1_GPIO_Port, BUTTON_1_Pin);
-	if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_SET) // the button is being pressed
-		holdTime1 += SCAN_PERIOD; // add 30ms to holdTime1
-	else if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_SET) { // the button was released
+	if(state == GPIO_PIN_RESET && lastState1 == GPIO_PIN_RESET) // the button is being pressed
+		holdTime1 += SCAN_PERIOD; // add 10ms to holdTime1
+	else if(state == GPIO_PIN_SET && lastState1 == GPIO_PIN_RESET) { // the button was released
 		HAL_TIM_Base_Stop_IT(&TIMER_FOR_LED); // stop the timer to update its period.
 		int newPeriod = 0;
 		if(holdTime1 < 500)
@@ -408,9 +408,9 @@ void checkButtons() {
 
 	// check button 2
 	state = HAL_GPIO_ReadPin(BUTTON_2_GPIO_Port, BUTTON_2_Pin);
-	if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_SET) // the button is being pressed
-		holdTime2 += SCAN_PERIOD; // add 30ms to holdTime2
-	else if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_SET) { // the button was released
+	if(state == GPIO_PIN_RESET && lastState2 == GPIO_PIN_RESET) // the button is being pressed
+		holdTime2 += SCAN_PERIOD; // add 10ms to holdTime2
+	else if(state == GPIO_PIN_SET && lastState2 == GPIO_PIN_RESET) { // the button was released
 		if(holdTime2 < 500) {
 			// change effect.
 			selectedtEffect = (selectedtEffect + 1) % 3; // there are 3 effect;
@@ -435,11 +435,11 @@ void checkButtons() {
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	//GPIOA->ODR = htim3.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
+	//GPIOA->ODR = TIMER_FOR_BUTTON.Instance->ARR / (100 * DEF_TIMER_MS - 1); // only use for debugging
 	if (htim == &TIMER_FOR_LED)
 		toggleLeds();
 
-	// timer4's period is 30ms
+	// timer4's period is 10ms
 	if (htim == &TIMER_FOR_BUTTON)
 		checkButtons();
 }
