@@ -2,3 +2,5 @@ Debug/
 .vscode/
 .settings/
 .metadata/
+.vs/
+CppProperties.json
