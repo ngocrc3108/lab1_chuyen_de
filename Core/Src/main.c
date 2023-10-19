@@ -18,7 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "stdio.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -34,7 +34,7 @@
 #define DEF_TIMER_MS 10
 #define TIMER_FOR_LED htim3
 #define TIMER_FOR_BUTTON htim4
-#define SCAN_PERIOD 10 //30ms
+#define SCAN_PERIOD 10 //10ms
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -64,7 +64,7 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void display();
 /* USER CODE END 0 */
 
 /**
@@ -101,6 +101,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&TIMER_FOR_LED);
   HAL_TIM_Base_Start_IT(&TIMER_FOR_BUTTON);
+  display();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -367,13 +368,20 @@ void toggleLeds() {
 	effectPhase = (effectPhase + 1) % 12; // there are 9 phase, 0 -> 8.
 }
 
+void display() {
+	char buffer[15];
+	int period = (TIMER_FOR_LED.Instance->ARR + 1) / DEF_TIMER_MS;
+	sprintf(buffer, "\np: %d\ne: %d", period, selectedtEffect);
+	HAL_UART_Transmit(&huart1, (uint8_t*)buffer, 15, 100);
+}
+
 // button 1
 GPIO_PinState lastState1 = GPIO_PIN_SET;
-uint32_t holdTime1 = 0;
+int holdTime1 = 0;
 
 // button 2
 GPIO_PinState lastState2 = GPIO_PIN_SET;
-uint32_t holdTime2 = 0;
+int holdTime2 = 0;
 
 void checkButtons() {
 	// this function is called every 10ms
@@ -403,6 +411,7 @@ void checkButtons() {
 		// reset holdTime and restart the timer.
 		holdTime1 = 0;
 		HAL_TIM_Base_Start_IT(&TIMER_FOR_LED);
+		display();
 	}
 	lastState1 = state;
 
@@ -429,6 +438,7 @@ void checkButtons() {
 			__HAL_TIM_SET_COUNTER(&TIMER_FOR_LED, 0); // reset counter
 			HAL_TIM_Base_Start_IT(&TIMER_FOR_LED); // restart timer
 		}
+		display();
 		holdTime2 = 0;
 	}
 	lastState2 = state;
