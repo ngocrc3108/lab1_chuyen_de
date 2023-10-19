@@ -1,5 +1,8 @@
 # lab1 - chuyên đề thiết kế hệ thống nhúng 1.
 
+###
+[Link demo](https://drive.google.com/file/d/12ZkMeiDxIX1s6i0-gwFi5phEPDBhVhnq/view?usp=sharing).
+
 ### Hiệu ứng
 Hiệu ứng 2 và hiệu ứng 3 có 12 phase (từ phase 0 đến phase 11): mỗi led chớp tắt trong 4 phase. 1 phase tương đương với 1 chu kì mà ta có thể thay đổi bằng nút nhấn (100ms -> 2s).
 - Hiệu ứng 1: chớp tắt 3 led cùng lúc.
@@ -9,7 +12,7 @@ Hiệu ứng 2 và hiệu ứng 3 có 12 phase (từ phase 0 đến phase 11): m
 ![Công thức tính](/Images/16cap1.png)  
 System clock = 72Mhz.
 
-Chu kì của timer3 là 100ms. Vậy ta chọn ra được prescaler = 7200-1 và counter period = 1000-1.
+Chu kì của timer3 có thể được thay đổi bằng nút nhấn (ghi vào thanh ghi ARR), giá trị khởi tạo là 100ms. Vậy ta chọn ra được prescaler = 7200-1 và counter period = 1000-1.
 Sử dụng timer3 để làm chu kì chớp tắt led.
 
 Chu kì của timer4 là 10ms. Vậy ta chọn ra được prescaler = 7200-1 và counter period = 100-1.
@@ -22,4 +25,4 @@ Phát hiện cạch của nút nhấn (sự nhấn nhả) bằng cách kiểm tr
 ### Hiển thị chu kì chớp/tắt led và hiệu ứng ra màn hình
 Sử dụng UART1 với baud rate = 115200.
 
-gọi hàm display mỗi khi có thay đổi về chu kì hoặc hiệu ứng (do 2 button).
+Gọi hàm display mỗi khi có thay đổi về chu kì hoặc hiệu ứng (do 2 button).
